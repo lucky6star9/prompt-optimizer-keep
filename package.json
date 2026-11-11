@@ -6,9 +6,10 @@
   "description": "Optimizes a prompt against the current project: a composer icon button and an agent tool rewrite a draft using the workspace's stack, structure, and conventions.",
   "license": "MIT",
   "author": "luckystar6",
+  "keywords": ["dsh", "dsh-plugin", "deepseek-harness", "prompt", "prompt-optimizer"],
   "repository": {
     "type": "git",
-    "url": "https://github.com/lucky6star9/dsh-prompt-optimizer.git"
+    "url": "https://github.com/lucky6star9/prompt-optimizer-keep.git"
   },
   "exports": {
     ".": "./index.js",
@@ -18,8 +19,8 @@
   },
   "files": ["index.js", "client.js", "cordis.patch.yml", "locale/*.json", "icon.svg"],
   "peerDependencies": {
-    "@deepseek-ai/dsh-typert-protocol": ">=0.2.0",
-    "@deepseek-ai/schemastery": ">=3.18.0"
+    "@deepseek-ai/dsh-typert-protocol": ">=0.1.0-rc.1 <0.2.0 || >=0.2.0-rc.1 <0.2.1 || >=0.2.1-rc.1 <0.2.2 || >=0.2.2-alpha.1 <0.3.0-0",
+    "@deepseek-ai/schemastery": ">=3.18.0 || >=3.18.1-rc.1 <3.18.2 || >=3.18.5-alpha.1 <3.18.6 || >=3.18.6-alpha.1 <3.19.0 || >=3.19.0-rc.1 <4.0.0-0"
   },
   "dsh": {
     "bundle": { "patch": "./cordis.patch.yml" },
