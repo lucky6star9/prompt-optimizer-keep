@@ -1,11 +1,11 @@
 window.__ModuleLoader__.load({
-  id: '@local/prompt-optimizer',
+  id: '@local/prompt-keep',
   factory(require) {
     const React = require('react')
     const h = React.createElement
 
     /** Namespace this plugin's visible text is registered under. */
-    const LOCALE_NS = 'prompt-optimizer'
+    const LOCALE_NS = 'prompt-keep'
 
     /** English dictionary for the plugin's own namespace. */
     const EN = {
@@ -17,8 +17,8 @@ window.__ModuleLoader__.load({
       'button.notes': 'Notes',
       'notes.heading': 'Optimization notes',
       'notes.dismiss': 'Dismiss notes',
-      'settings.nav': 'Prompt Optimizer',
-      'settings.heading': 'Prompt Optimizer settings',
+      'settings.nav': 'Prompt Keep',
+      'settings.heading': 'Prompt Keep settings',
       'settings.notesPanel.label': 'Show the notes panel',
       'settings.notesPanel.description': 'Show the optimization notes panel above the input box after each optimization.',
       'settings.model.mode.label': 'Model used for optimization',
@@ -85,7 +85,7 @@ window.__ModuleLoader__.load({
      * keeps the panel's long-standing default behaviour for every user who
      * never opened the settings page.
      */
-    const NOTES_VISIBLE_KEY = 'dsh.plugin.prompt-optimizer.notes-panel-visible'
+    const NOTES_VISIBLE_KEY = 'dsh.plugin.prompt-keep.notes-panel-visible'
 
     /**
      * Milliseconds between progress reads while an optimization runs. Each read
@@ -263,7 +263,7 @@ window.__ModuleLoader__.load({
               disposeEn()
               disposeZh()
             }
-          }, 'prompt-optimizer:locale')
+          }, 'prompt-keep:locale')
         }
 
         /**
@@ -498,7 +498,7 @@ window.__ModuleLoader__.load({
                       : [],
                   }))
                 : []
-              const descriptor = describeRow(describe, 'prompt-optimizer')
+              const descriptor = describeRow(describe, 'prompt-keep')
               const writable = describeWritable(describe)
               if (descriptor === undefined) {
                 // The running Host has no settings form for this plugin (it
@@ -544,13 +544,13 @@ window.__ModuleLoader__.load({
               { op: 'set', path: ['model'], value: next.model },
             ]
             try {
-              let response = await remoteSettings.mutate('prompt-optimizer', ops, before.revision)
+              let response = await remoteSettings.mutate('prompt-keep', ops, before.revision)
               if (!response.ok) {
                 const refreshed = await remoteSettings.describe()
-                const descriptor = describeRow(refreshed, 'prompt-optimizer')
+                const descriptor = describeRow(refreshed, 'prompt-keep')
                 if (descriptor === undefined) throw new Error('the saved route is no longer configurable')
                 response = await remoteSettings.mutate(
-                  'prompt-optimizer',
+                  'prompt-keep',
                   ops,
                   typeof descriptor.revision === 'number' ? descriptor.revision : undefined,
                 )
@@ -597,7 +597,7 @@ window.__ModuleLoader__.load({
             }
             window.addEventListener('storage', onStorage)
             return () => window.removeEventListener('storage', onStorage)
-          }, 'prompt-optimizer:notes-visibility-storage')
+          }, 'prompt-keep:notes-visibility-storage')
         }
 
         // Live model-route sync: the settings forms change on the Host (this
@@ -619,7 +619,7 @@ window.__ModuleLoader__.load({
             return () => {
               for (const dispose of disposers) dispose()
             }
-          }, 'prompt-optimizer:model-selection-events')
+          }, 'prompt-keep:model-selection-events')
         }
 
         /**
@@ -1203,7 +1203,7 @@ window.__ModuleLoader__.load({
 
               // Streaming path: `/optimize-start` kicks the run off in the
               // background and answers at once with a stream id; the plugin's
-              // own Remote namespace (`promptOptimizer/poll`) then reports the
+              // own Remote namespace (`promptKeep/poll`) then reports the
               // rewrite accumulated so far, and each chunk is written into the
               // composer so the prompt grows while the model generates. The
               // progress reads are plain RPC on the connection, so they write
@@ -1214,7 +1214,7 @@ window.__ModuleLoader__.load({
               // unavailable endpoint answers with an error instead of a view,
               // and the button then takes the blocking path rather than start a
               // run it could not follow.
-              // The Gateway claims `promptOptimizer/poll` only when this
+              // The Gateway claims `promptKeep/poll` only when this
               // plugin's Remote service is registered, so one empty-id probe
               // tells the two cases apart: an unclaimed endpoint answers
               // `gateway/invocation-unavailable`, while a claimed one reaches
@@ -1226,7 +1226,7 @@ window.__ModuleLoader__.load({
               // Anything else is rejected before the method runs.
               const connection = ctx.get('connection')
               const progressReader = connection !== undefined && typeof connection.rpc?.call === 'function'
-                ? { call: (streamId) => connection.rpc.call('/api', 'promptOptimizer/poll', { args: { streamId } }) }
+                ? { call: (streamId) => connection.rpc.call('/api', 'promptKeep/poll', { args: { streamId } }) }
                 : undefined
               let streamable = false
               if (progressReader !== undefined) {
@@ -1398,11 +1398,11 @@ window.__ModuleLoader__.load({
         // zero, one, or both can be up.
         ctx.slots.inject('conversation.input.dock', () => {
           const disposeNotes = ctx.slots.register(
-            { name: 'conversation.input.dock', id: 'prompt-optimizer-notes', order: 666, label: t('notes.heading') },
+            { name: 'conversation.input.dock', id: 'prompt-keep-notes', order: 666, label: t('notes.heading') },
             NotesPanel,
           )
           const disposeError = ctx.slots.register(
-            { name: 'conversation.input.dock', id: 'prompt-optimizer-error', order: 999, label: t('button.failed') },
+            { name: 'conversation.input.dock', id: 'prompt-keep-error', order: 999, label: t('button.failed') },
             ErrorPanel,
           )
           return () => {
@@ -1417,7 +1417,7 @@ window.__ModuleLoader__.load({
         // label is a function so it re-resolves on locale changes.
         ctx.slots.inject('settings.section', () =>
           ctx.slots.register(
-            { name: 'settings.section', id: 'prompt-optimizer', order: 16, label: () => t('settings.nav') },
+            { name: 'settings.section', id: 'prompt-keep', order: 16, label: () => t('settings.nav') },
             PromptOptimizerSettings,
           ),
         )

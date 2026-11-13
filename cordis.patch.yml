@@ -1,4 +1,4 @@
 - insert:
-    - id: prompt-optimizer
-      name: '@local/prompt-optimizer'
+    - id: prompt-keep
+      name: '@local/prompt-keep'
       config: {}

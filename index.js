@@ -1,5 +1,5 @@
 /**
- * Host half of the Prompt Optimizer bundle.
+ * Host half of the Prompt Keep bundle.
  *
  * One operation, two callers: `optimizePrompt` is the single implementation.
  * The agent tool (`optimize_prompt`) and the slash command (`/optimize`) both
@@ -479,7 +479,7 @@ async function callModel(ctx, instruction, agent, config, signal, onDelta) {
   const route = resolveRoute(ctx, agent, config)
   if (route === undefined) {
     if (plainConfigValue(config?.mode) === 'fixed') {
-      throw new Error('The pinned model route is incomplete. Set both the provider and the model in the Prompt Optimizer settings page.')
+      throw new Error('The pinned model route is incomplete. Set both the provider and the model in the Prompt Keep settings page.')
     }
     throw new Error('No model route is available. Select a model in the composer and try again.')
   }
@@ -555,7 +555,7 @@ async function optimizePrompt(ctx, prompt, options = {}) {
  * In-flight composer optimizations, keyed by the stream id `/optimize-start`
  * answers with. The background run keeps writing the partial rewrite into its
  * entry, and the Web UI reads it back over the plugin's own Remote namespace
- * (`promptOptimizer/poll`). A TTL sweep drops entries whose page went away, so
+ * (`promptKeep/poll`). A TTL sweep drops entries whose page went away, so
  * a closed tab cannot leak a run.
  */
 const streams = new Map()
@@ -579,12 +579,12 @@ function sweepStreams() {
 const REMOTE_METHODS_PROPERTY = '@deepseek-ai/dsh-typert-protocol/remote-methods'
 
 /** Cordis service key and wire namespace of the progress reader. */
-const REMOTE_SERVICE_KEY = 'promptOptimizer'
+const REMOTE_SERVICE_KEY = 'promptKeep'
 
 /**
  * The Remote service the Web UI calls to read an optimization's progress.
  *
- * Three things make `promptOptimizer/poll` reachable, and all three are
+ * Three things make `promptKeep/poll` reachable, and all three are
  * required: the service must be a `TypertRemoteService` (which carries the
  * gateway's `typertRemote` binding), it must be registered under `serviceKey`
  * through `ctx.provide`, and `poll` must carry the Remote marker on the class
@@ -625,7 +625,7 @@ Object.defineProperty(PromptOptimizerRemote.prototype, REMOTE_METHODS_PROPERTY, 
 
 /**
  * Expose the progress reader as this plugin's own Cordis service so the
- * Gateway can resolve `promptOptimizer/poll`.
+ * Gateway can resolve `promptKeep/poll`.
  * @param {object} ctx - the plugin context.
  * @param {(streamId: string) => Promise<object>} read - the poll implementation.
  * @returns {(() => void) | undefined} the disposer, when the service landed.
@@ -642,7 +642,7 @@ function exposeOptimizerRemote(ctx, read) {
   // constructor result is dropped and the fiber owns the service's lifetime.
   ctx.effect(() => {
     new PromptOptimizerRemote(ctx, read)
-  }, 'prompt-optimizer:remote-service')
+  }, 'prompt-keep:remote-service')
 }
 
 /**
@@ -657,7 +657,7 @@ export function apply(ctx, config) {
   if (settings !== undefined) {
     // The plugin ships its own settings section; keep the schema-driven page
     // DSH would otherwise auto-generate from the Config above out of the nav.
-    ctx.effect(() => settings.configure({ auto: false }, ctx.fiber), 'prompt-optimizer:settings-page-policy')
+    ctx.effect(() => settings.configure({ auto: false }, ctx.fiber), 'prompt-keep:settings-page-policy')
   }
 
   if (tools !== undefined) {
@@ -723,7 +723,7 @@ export function apply(ctx, config) {
         }
       },
     })
-    ctx.effect(() => dispose, 'prompt-optimizer:tool')
+    ctx.effect(() => dispose, 'prompt-keep:tool')
   }
 
   if (commands !== undefined) {
@@ -732,7 +732,7 @@ export function apply(ctx, config) {
     // are unavailable. `recordInput: false` keeps the draft out of the
     // `command/run` entry.
     const dispose = commands.register({
-      definitionId: CommandDefinitionId('@local/prompt-optimizer'),
+      definitionId: CommandDefinitionId('@local/prompt-keep'),
       name: 'optimize',
       description: 'Optimize the current prompt against this project.',
       input: { hint: '<prompt text>' },
@@ -752,7 +752,7 @@ export function apply(ctx, config) {
         }
       },
     })
-    ctx.effect(() => dispose, 'prompt-optimizer:command')
+    ctx.effect(() => dispose, 'prompt-keep:command')
 
     // Streaming twin of `/optimize` for the composer button. The start command
     // kicks the optimization off in the background and answers at once with a
@@ -760,7 +760,7 @@ export function apply(ctx, config) {
     // far and, once, the terminal state. The button writes each chunk into the
     // composer as it arrives, so the rewrite grows while the model generates.
     const disposeStart = commands.register({
-      definitionId: CommandDefinitionId('@local/prompt-optimizer:start'),
+      definitionId: CommandDefinitionId('@local/prompt-keep:start'),
       name: 'optimize-start',
       description: 'Start optimizing a prompt against this project and answer with a stream id.',
       input: { hint: '<prompt text>' },
@@ -793,7 +793,7 @@ export function apply(ctx, config) {
         return { kind: 'success', text: JSON.stringify({ streamId: id }) }
       },
     })
-    ctx.effect(() => disposeStart, 'prompt-optimizer:command:start')
+    ctx.effect(() => disposeStart, 'prompt-keep:command:start')
 
     // The progress reader the composer polls over the plugin's own Remote
     // namespace. It is a service method rather than a command because every
@@ -805,7 +805,7 @@ export function apply(ctx, config) {
       const id = typeof streamId === 'string' ? streamId.trim() : ''
       const entry = id.length > 0 ? streams.get(id) : undefined
       if (entry === undefined) {
-        throw new RemoteError('promptOptimizer/stream-not-found', 'The optimization stream is gone. Start again.', {})
+        throw new RemoteError('promptKeep/stream-not-found', 'The optimization stream is gone. Start again.', {})
       }
       if (entry.done) {
         // The terminal poll hands over the outcome and releases the entry.

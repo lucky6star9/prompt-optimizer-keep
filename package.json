@@ -1,15 +1,15 @@
 {
-  "name": "@local/prompt-optimizer",
+  "name": "@local/prompt-keep",
   "version": "1.0.0",
   "private": true,
   "type": "module",
   "description": "Optimizes a prompt against the current project: a composer icon button and an agent tool rewrite a draft using the workspace's stack, structure, and conventions.",
   "license": "MIT",
   "author": "luckystar6",
-  "keywords": ["dsh", "dsh-plugin", "deepseek-harness", "prompt", "prompt-optimizer"],
+  "keywords": ["dsh", "dsh-plugin", "deepseek-harness", "prompt", "prompt-keep"],
   "repository": {
     "type": "git",
-    "url": "https://github.com/lucky6star9/prompt-optimizer-keep.git"
+    "url": "https://github.com/lucky6star9/prompt-keep.git"
   },
   "exports": {
     ".": "./index.js",
