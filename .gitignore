@@ -17,3 +17,6 @@ Thumbs.db
 
 # npm pack output
 *.tgz
+
+# Windows console-device artifact left by failed git credential prompts
+CON
